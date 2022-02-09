@@ -1,0 +1,8 @@
+# dependencies
+/node_modules
+
+# intellij configs
+/.idea
+
+# production
+/build
