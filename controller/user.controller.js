@@ -1,4 +1,3 @@
-//const db = require("../db/db");
 const db = require("../db/index");
 const Person = db.person;
 
