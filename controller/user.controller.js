@@ -35,7 +35,7 @@ class UserController {
       },
       { where: { id: id } }
     );
-    res.json(user);
+    res.json(!!user[0]);
   }
   async deleteUser(req, res) {
     const id = req.params.id;
@@ -43,7 +43,7 @@ class UserController {
     const user = await Person.destroy({
       where: { id: id },
     });
-    res.json(user);
+    res.json(!!user);
   }
 }
 
