@@ -35,10 +35,12 @@ class AuthController {
         email: email,
         password: hash,
       });
-      res.json({ message: `User with ${email} successfully registered` });
+      return res.json({
+        message: `User with ${email} successfully registered`,
+      });
     } catch (error) {
       console.log(error);
-      res.status(400).json({ message: "Registration error" });
+      return res.status(400).json({ message: "Registration error" });
     }
   }
   async login(req, res) {
@@ -59,13 +61,13 @@ class AuthController {
       return res.json({ token });
     } catch (error) {
       console.log(error);
-      res.status(400).json({ message: "Login error" });
+      return res.status(400).json({ message: "Login error" });
     }
   }
   async getUsers(req, res) {
     try {
       const users = await User.findAll();
-      res.json(users);
+      return res.json(users);
     } catch (error) {}
   }
 }
