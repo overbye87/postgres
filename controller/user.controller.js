@@ -1,34 +1,49 @@
-const db = require("../db");
+//const db = require("../db/db");
+const db = require("../db/index");
+const Person = db.person;
+
 class UserController {
   async createUser(req, res) {
     const { name, surname } = req.body;
-    const newPerson = await db.query(
-      "INSERT INTO person (name, surname) values ($1, $2) RETURNING *",
-      [name, surname]
-    );
-    res.json(newPerson.rows[0]);
+    const newPerson = await Person.create({
+      name: name,
+      surname: surname,
+    });
+    res.json(newPerson);
   }
   async getUsers(req, res) {
-    const users = await db.query("SELECT * FROM person");
-    res.json(users.rows);
+    //const users = await db.query("SELECT * FROM person");
+    const users = await Person.findAll();
+    res.json(users);
   }
   async getOneUser(req, res) {
     const id = req.params.id;
-    const user = await db.query("SELECT * FROM person where id = $1", [id]);
-    res.json(user.rows[0]);
+    //const user = await db.query("SELECT * FROM person where id = $1", [id]);
+    const user = await Person.findByPk(id);
+    res.json(user);
   }
   async updateUser(req, res) {
     const { id, name, surname } = req.body;
-    const user = await db.query(
-      "UPDATE person set name = $1, surname = $2 where id = $3 RETURNING *",
-      [name, surname, id]
+    // const user = await db.query(
+    //   "UPDATE person set name = $1, surname = $2 where id = $3 RETURNING *",
+    //   [name, surname, id]
+    // );
+    const user = await Person.update(
+      {
+        name: name,
+        surname: surname,
+      },
+      { where: { id: id } }
     );
-    res.json(user.rows[0]);
+    res.json(user);
   }
   async deleteUser(req, res) {
     const id = req.params.id;
-    const user = await db.query("DELETE FROM person where id = $1", [id]);
-    res.json(user.rows[0]);
+    //const user = await db.query("DELETE FROM person where id = $1", [id]);
+    const user = await Person.destroy({
+      where: { id: id },
+    });
+    res.json(user);
   }
 }
 
