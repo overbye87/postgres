@@ -20,27 +20,41 @@ class AuthController {
   async registration(req, res) {
     try {
       const errors = validationResult(req);
+      // check input validation
       if (!errors.isEmpty()) {
         return res
           .status(400)
-          .json({ message: "Validation failed", ...errors });
+          .json({ status: false, message: "Validation failed", ...errors });
       }
-      const { email, password } = req.body;
+      const { name, surname, email, password, dob, role } = req.body;
+      // check existing email
       const candidate = await User.findOne({ where: { email: email } });
       if (candidate) {
-        return res.status(400).json({ message: "Email alredy exist" });
+        return res.status(400).json({
+          status: false,
+          message: "Email alredy exist",
+        });
       }
+      // calculate hash and creation user
       const hash = await bcrypt.hash(password, saltRounds);
       const user = User.create({
-        email: email,
+        name,
+        surname,
+        email,
         password: hash,
+        dob,
+        role,
       });
       return res.json({
+        status: true,
+        user,
         message: `User with ${email} successfully registered`,
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).json({ message: "Registration error" });
+      return res
+        .status(400)
+        .json({ status: false, message: "Registration error" });
     }
   }
   async login(req, res) {
@@ -50,25 +64,31 @@ class AuthController {
       if (!user) {
         return res
           .status(400)
-          .json({ message: `User with ${email} not found` });
+          .json({ status: false, message: `User with ${email} not found` });
       }
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        return res.status(400).json({ message: `Password is incorrect` });
+        return res
+          .status(400)
+          .json({ status: false, message: `Password is incorrect` });
       }
+      // generate token
       const token = generateAccessToken(user.id, user.role);
-
-      return res.json({ token });
+      return res.json({ status: true, token, message: `Login successful` });
     } catch (error) {
       console.log(error);
-      return res.status(400).json({ message: "Login error" });
+      return res.status(400).json({ status: false, message: "Login error" });
     }
   }
   async getUsers(req, res) {
     try {
       const users = await User.findAll();
       return res.json(users);
-    } catch (error) {}
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ status: false, message: `Can not get users` });
+    }
   }
 }
 
