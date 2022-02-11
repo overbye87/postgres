@@ -1,6 +1,6 @@
 const express = require("express");
-const userRouter = require("./routes/user.routes");
-const authRouter = require("./routes/auth.routes");
+const userRouter = require("./routes/userRouter");
+const authRouter = require("./routes/authRouter");
 const PORT = process.env.PORT || 8080;
 const app = express();
 
