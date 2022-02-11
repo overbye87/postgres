@@ -27,14 +27,18 @@ class UserController {
     //   "UPDATE person set name = $1, surname = $2 where id = $3 RETURNING *",
     //   [name, surname, id]
     // );
-    const user = await Person.update(
+    const status = await Person.update(
       {
         name: name,
         surname: surname,
       },
       { where: { id: id } }
     );
-    res.json(!!user[0]);
+    const user = await Person.findByPk(id);
+    res.json({
+      user,
+      status: !!status[0],
+    });
   }
   async deleteUser(req, res) {
     const id = req.params.id;
