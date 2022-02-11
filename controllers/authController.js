@@ -8,6 +8,8 @@ const { validationResult } = require("express-validator");
 
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config");
+
+// role (string) is "admin" or "user"
 const generateAccessToken = (id, role) => {
   const payload = {
     id,
@@ -37,7 +39,7 @@ class AuthController {
       }
       // calculate hash and creation user
       const hash = await bcrypt.hash(password, saltRounds);
-      const user = User.create({
+      const user = await User.create({
         name,
         surname,
         email,
@@ -83,11 +85,73 @@ class AuthController {
   async getUsers(req, res) {
     try {
       const users = await User.findAll();
-      return res.json(users);
+      return res.json({
+        status: true,
+        users,
+        message: `Users retrieved successfully`,
+      });
     } catch (error) {
       return res
         .status(400)
         .json({ status: false, message: `Can not get users` });
+    }
+  }
+  async getOneUser(req, res) {
+    try {
+      const id = req.params.id;
+      const user = await User.findByPk(id);
+      return res.json({
+        status: true,
+        user,
+        message: `User with id:${id} retrieved successfully`,
+      });
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ status: false, message: `Can not get user with id:${id}` });
+    }
+  }
+  async updateUser(req, res) {
+    try {
+      const { id, name, surname, email, password, dob, role } = req.body;
+      const status = await User.update(
+        {
+          name,
+          surname,
+          email,
+          password,
+          dob,
+          role,
+        },
+        { where: { id: id } }
+      );
+      const user = await User.findByPk(id);
+      return res.json({
+        status: true,
+        user,
+        message: `Data of user with id:${id} successfully changed`,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        status: false,
+        message: `Can not change data of user with id:${id}`,
+      });
+    }
+  }
+  async deleteUser(req, res) {
+    try {
+      const id = req.params.id;
+      const user = await User.destroy({
+        where: { id: id },
+      });
+      return res.json({
+        status: true,
+        message: `User with id:${id} deleted successfully`,
+      });
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ status: false, message: `Can not delete user with id:${id}` });
     }
   }
 }

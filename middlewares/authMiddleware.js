@@ -14,7 +14,7 @@ module.exports = function (req, res, next) {
         .json({ status: false, message: "No token. User is not authorized" });
     }
     const decodedData = jwt.verify(token, secret);
-    console.log("Tocken check: ", decodedData);
+    console.log("Token check: ", decodedData);
     req.user = decodedData;
     next();
   } catch (error) {
