@@ -1,7 +1,3 @@
-//const db = require("../db/index");
-//const User = db.user;
-
-const db = require("../models");
 const User = require("../models").User;
 console.log("User:", User);
 
