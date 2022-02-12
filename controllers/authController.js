@@ -98,7 +98,8 @@ class AuthController {
   }
   async getOneUser(req, res) {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
+      console.log(id);
       const user = await User.findByPk(id);
       return res.json({
         status: true,
@@ -140,10 +141,16 @@ class AuthController {
   }
   async deleteUser(req, res) {
     try {
-      const id = req.params.id;
-      const user = await User.destroy({
+      const { id } = req.params;
+      const result = await User.destroy({
         where: { id: id },
       });
+      if (!result) {
+        return res.status(400).json({
+          status: false,
+          message: `There is no user with id:${id}`,
+        });
+      }
       return res.json({
         status: true,
         message: `User with id:${id} deleted successfully`,
