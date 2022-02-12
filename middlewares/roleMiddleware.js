@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { secret } = require("../config");
+const { secret } = require("../secret");
 
 // role (string) is "admin" or "user"
 module.exports = function (roles) {

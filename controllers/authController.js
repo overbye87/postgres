@@ -1,5 +1,9 @@
-const db = require("../db/index");
-const User = db.user;
+//const db = require("../db/index");
+//const User = db.user;
+
+const db = require("../models");
+const User = require("../models").User;
+console.log("User:", User);
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -7,7 +11,7 @@ const saltRounds = 10;
 const { validationResult } = require("express-validator");
 
 const jwt = require("jsonwebtoken");
-const { secret } = require("../config");
+const { secret } = require("../secret");
 
 // role (string) is "admin" or "user"
 const generateAccessToken = (id, role) => {

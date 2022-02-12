@@ -1,12 +1,12 @@
 const Sequilize = require("sequelize");
-
+//  npx sequelize-cli model:generate --name User --attributes name:string,surname:string,email:string,password:string,dob:string,role:string
 module.exports = function (sequelize) {
   return sequelize.define(
     "user",
     {
       id: {
-        type: Sequilize.INTEGER,
         autoIncrement: true,
+        type: Sequilize.INTEGER,
         primaryKey: true,
         allowNull: false,
       },
