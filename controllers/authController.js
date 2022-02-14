@@ -1,5 +1,5 @@
-const User = require("../models").User;
-console.log("User:", User);
+const db = require("../models");
+const User = db.User;
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -47,9 +47,14 @@ class AuthController {
         dob,
         role,
       });
+      const responseUser = await User.findOne({
+        where: { email: email },
+        raw: true,
+      });
+      delete responseUser.password;
       return res.json({
         status: true,
-        user,
+        user: responseUser,
         message: `User with ${email} successfully registered`,
       });
     } catch (error) {
@@ -62,7 +67,7 @@ class AuthController {
   async login(req, res) {
     try {
       const { email, password } = req.body;
-      const user = await User.findOne({ where: { email: email } });
+      const user = await User.findOne({ where: { email: email }, raw: true });
       if (!user) {
         return res
           .status(400)
@@ -76,7 +81,13 @@ class AuthController {
       }
       // generate token
       const token = generateAccessToken(user.id, user.role);
-      return res.json({ status: true, token, message: `Login successful` });
+      delete user.password;
+      return res.json({
+        status: true,
+        token,
+        user: user,
+        message: `Login successful`,
+      });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ status: false, message: "Login error" });
@@ -84,10 +95,17 @@ class AuthController {
   }
   async getUsers(req, res) {
     try {
-      const users = await User.findAll();
+      const users = await User.findAll({
+        raw: true,
+      });
+      const responseUsers = users.map((user) => {
+        delete user.password;
+        return user;
+      });
+
       return res.json({
         status: true,
-        users,
+        users: responseUsers,
         message: `Users retrieved successfully`,
       });
     } catch (error) {
@@ -99,8 +117,8 @@ class AuthController {
   async getOneUser(req, res) {
     try {
       const { id } = req.params;
-      console.log(id);
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, { raw: true });
+      delete user.password;
       return res.json({
         status: true,
         user,
@@ -115,6 +133,15 @@ class AuthController {
   async updateUser(req, res) {
     try {
       const { id, name, surname, email, password, dob, role } = req.body;
+      if (typeof id !== "number") {
+        return res.status(400).json({ status: false, message: `Incorrect id` });
+      }
+      const user = await User.findByPk(id, { raw: true });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ status: false, message: `Can not get user with id:${id}` });
+      }
       const status = await User.update(
         {
           name,
@@ -126,10 +153,11 @@ class AuthController {
         },
         { where: { id: id } }
       );
-      const user = await User.findByPk(id);
+      const responseUser = await User.findByPk(id, { raw: true });
+      delete responseUser.password;
       return res.json({
         status: true,
-        user,
+        user: responseUser,
         message: `Data of user with id:${id} successfully changed`,
       });
     } catch (error) {
